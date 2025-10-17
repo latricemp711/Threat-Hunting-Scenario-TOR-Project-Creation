@@ -44,61 +44,80 @@ DeviceFileEvents
 
 ---
 
-
-
-
 ### 2. Searched the `DeviceProcessEvents` Table
 
 At this time the user latricemp711 silently installed Tor, several times on the windowsdefender virtual machine. This silent command was installed five times on. We discoverefd this by searching through the DeviceProcessEvents searching the  ProcessCommandLine "tor-browser-windows-x86_64-portable-14.5.6.exe"   Why it was executed five times we are not for certain. The screenshot shows that the process created five times between the hours of 11:52 - 12:30pm on September 4th. The below KQL query code was used:
 
-**Query used to locate event:**
+**Query used to locate events:**
 
+```kql
 DeviceProcessEvents
 | where DeviceName == "windowsdefender"
 | where FileName contains "tor-browser-windows-x86_64-portable-14.5.6.exe"
 | project Timestamp, DeviceName, ActionType, FileName, SHA256, ProcessCommandLine, AccountName
-
 ```
-<img width="1212" alt="image" src="<img width="1072" height="478" alt="threathunting_finalproject2" src="  "/>
-
+<img width="1072" height="478" alt="threathunting_finalproject2" src="https://github.com/user-attachments/assets/b0c023df-0ee0-4fe2-8aec-eee0f1dd4104" />
 
 ---
 
 ### 3. Searched the `DeviceProcessEvents` Table for TOR Browser Execution
 
-Searched for any indication that user "employee" actually opened the TOR browser. There was evidence that they did open it at `2024-11-08T22:17:21.6357935Z`. There were several other instances of `firefox.exe` (TOR) as well as `tor.exe` spawned afterwards.
+What we discovered through DeviceProcessEvent that a TOR browser was open by latricemp711. We acknowledge this by searching strings "tor.exe" "tor-browser.exe" and "firefox.exe". What return was firefox.exe, tor.exe, tor-browser.exe and we had to differentiate if this was a normal firefox browser or Tor browser and the folder pathway showed that this was a TOR browser. 
 
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where FileName has_any ("tor.exe", "firefox.exe", "tor-browser.exe")  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine  
-| order by Timestamp desc
+DeviceProcessEvents
+| where DeviceName == "windowsdefender"
+| where FileName has_any ("firefox.exe")
+| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine, AccountName
+| order by Timestamp desc 
+
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b13707ae-8c2d-4081-a381-2b521d3a0d8f">
+<img width="778" height="413" alt="threathunting_finalproject3" src="https://github.com/user-attachments/assets/b38c8814-1e19-4742-8fb0-197286fc43a0" />
+
 
 ---
 
 ### 4. Searched the `DeviceNetworkEvents` Table for TOR Network Connections
 
-Searched for any indication the TOR browser was used to establish a connection using any of the known TOR ports. At `2024-11-08T22:18:01.1246358Z`, an employee on the "threat-hunt-lab" device successfully established a connection to the remote IP address `176.198.159.33` on port `9001`. The connection was initiated by the process `tor.exe`, located in the folder `c:\users\employee\desktop\tor browser\browser\torbrowser\tor\tor.exe`. There were a couple of other connections to sites over port `443`.
+We can see that there was three Connection Successes to the Tor Network. Tor is commonly associated with RemotePorts 9001, 9030, 9050, 9051. The user latricemp711 has success connected using port 9001 to search on the internet which is very suspicious. It again established a success connection on Sept 4. 
 
 **Query used to locate events:**
 
 ```kql
-DeviceNetworkEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName != "system"  
-| where InitiatingProcessFileName in ("tor.exe", "firefox.exe")  
-| where RemotePort in ("9001", "9030", "9040", "9050", "9051", "9150", "80", "443")  
-| project Timestamp, DeviceName, InitiatingProcessAccountName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessFolderPath  
-| order by Timestamp desc
+DeviceNetworkEvents
+| where DeviceName == "windowsdefender"
+| where InitiatingProcessAccountName != "system"
+| where RemotePort  in ("9001", "9030", "9050", "9051") 
+| where ActionType == "ConnectionSuccess"
+| project Timestamp, DeviceName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessAccountName, InitiatingProcessFolderPath 
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/87a02b5b-7d12-4f53-9255-f5e750d0e3cb">
+<img width="1201" height="632" alt="threathunting_finalproject4" src="https://github.com/user-attachments/assets/7a21614e-a502-4fde-a2d7-5e1bacab623a" />
+
+Summary this shows that latricemp711 has downloaded silently TOR and went out there way to install it. They went out of there way to open up the TOR browser and used the TOR browser to connect to the TOR network using port 9001. There was clear connection using the initiatingProcessFileName in tor.exe showed up for the records. I expanded the search and saw that thw user did have successful connections as well using port 443 as well. Final query below being able to pull all of the evidence. 
+**Query used to locate events:**
+
+```kql
+DeviceNetworkEvents
+| where DeviceName == "windowsdefender"
+| where InitiatingProcessAccountName != "system"
+| where InitiatingProcessFileName contains ("tor.exe")
+| where RemotePort  in ("9001", "9030", "9050", "9051",  "80", "443") 
+| where ActionType == "ConnectionSuccess"
+| project Timestamp, DeviceName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessAccountName, InitiatingProcessFolderPath
+
+```
+<img width="773" height="293" alt="threathunting_finalproject5" src="https://github.com/user-attachments/assets/ed131a43-b168-4756-8f5f-474dd45aa6d6" />
+
 
 ---
+<img width="667" height="199" alt="threathunting_finalproject6" src="https://github.com/user-attachments/assets/04caf5e8-402a-419e-94d8-6f77afbc1cf4" />
+---
+<img width="739" height="314" alt="threathunting_finalproject7" src="https://github.com/user-attachments/assets/89a35ad0-dbcb-47c4-a4c9-4bfa4ee57ae2" />
+---
+<img width="843" height="557" alt="threathunting_finalproject8" src="https://github.com/user-attachments/assets/8d46a9d7-3929-4d77-b029-2e0b39637cf6" />
+--
 
 ## Chronological Event Timeline 
 
