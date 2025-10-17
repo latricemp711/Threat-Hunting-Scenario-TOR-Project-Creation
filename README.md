@@ -26,38 +26,40 @@ Management suspects that some employees may be using TOR browsers to bypass netw
 ## Steps Taken
 
 ### 1. Searched the `DeviceFileEvents` Table
+Steps Taken 
+Search the DeviceFilesEvent and search for any files that had the string TOR. We discovered that the user latricemp711 downloaded an TOR vinstaller which did something in many TOR related files that resulted any many files being created modified and deleted. A lasting event left a file called tor-shopping-list.txt. This event started on September 4th 11am and has lasted between 1p, . The deleted files seems to be an installer that was successful and was regenerated later. The installer that was created later was successful. The file that was creat tor-shopping-list.txt was created at 2025-09-04T20:05:07.6242339Z
 
-Searched for any file that had the string "tor" in it and discovered what looks like the user "employee" downloaded a TOR installer, did something that resulted in many TOR-related files being copied to the desktop, and the creation of a file called `tor-shopping-list.txt` on the desktop at `2024-11-08T22:27:19.7259964Z`. These events began at `2024-11-08T22:14:48.6065231Z`.
 
 **Query used to locate events:**
 
-```kql
-DeviceFileEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName == "employee"  
-| where FileName contains "tor"  
-| where Timestamp >= datetime(2024-11-08T22:14:48.6065231Z)  
-| order by Timestamp desc  
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+DeviceFileEvents
+| where DeviceName == "windowsdefender"
+| where FileName contains "tor"
+| where InitiatingProcessAccountName == "latricemp711"
+| where Timestamp >= datetime(2025-09-04T18:50:32.5459258Z)
+| order by Timestamp desc
+| project Timestamp, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/71402e84-8767-44f8-908c-1805be31122d">
+<img width="1212" alt="image" src="<img width="977" height="626" alt="threathunting_finalproject" src="https://github.com/user-attachments/assets/9fb76f9c-b29c-435d-88d3-605ffb916ba2" />
+">
 
 ---
 
 ### 2. Searched the `DeviceProcessEvents` Table
 
-Searched for any `ProcessCommandLine` that contained the string "tor-browser-windows-x86_64-portable-14.0.1.exe". Based on the logs returned, at `2024-11-08T22:16:47.4484567Z`, an employee on the "threat-hunt-lab" device ran the file `tor-browser-windows-x86_64-portable-14.0.1.exe` from their Downloads folder, using a command that triggered a silent installation.
+At this time the user latricemp711 silently installed Tor, several times on the windowsdefender virtual machine. This silent command was installed five times on. We discoverefd this by searching through the DeviceProcessEvents searching the  ProcessCommandLine "tor-browser-windows-x86_64-portable-14.5.6.exe"   Why it was executed five times we are not for certain. The screenshot shows that the process created five times between the hours of 11:52 - 12:30pm on September 4th. The below KQL query code was used:
 
 **Query used to locate event:**
 
-```kql
+DeviceProcessEvents
+| where DeviceName == "windowsdefender"
+| where FileName contains "tor-browser-windows-x86_64-portable-14.5.6.exe"
+| project Timestamp, DeviceName, ActionType, FileName, SHA256, ProcessCommandLine, AccountName
 
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe"  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b07ac4b4-9cb3-4834-8fac-9f5f29709d78">
+<img width="1212" alt="image" src="<img width="1072" height="478" alt="threathunting_finalproject2" src="  "/>
+
 
 ---
 
