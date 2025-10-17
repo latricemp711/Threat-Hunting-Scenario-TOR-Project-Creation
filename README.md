@@ -95,7 +95,7 @@ DeviceNetworkEvents
 ```
 <img width="1201" height="632" alt="threathunting_finalproject4" src="https://github.com/user-attachments/assets/7a21614e-a502-4fde-a2d7-5e1bacab623a" />
 
-Summary this shows that latricemp711 has downloaded silently TOR and went out there way to install it. They went out of there way to open up the TOR browser and used the TOR browser to connect to the TOR network using port 9001. There was clear connection using the initiatingProcessFileName in tor.exe showed up for the records. I expanded the search and saw that thw user did have successful connections as well using port 443 as well. Final query below being able to pull all of the evidence. 
+
 **Query used to locate events:**
 
 ```kql
@@ -170,12 +170,6 @@ DeviceNetworkEvents
 
 ## Summary
 
-The user "employee" on the "threat-hunt-lab" device initiated and completed the installation of the TOR browser. They proceeded to launch the browser, establish connections within the TOR network, and created various files related to TOR on their desktop, including a file named `tor-shopping-list.txt`. This sequence of activities indicates that the user actively installed, configured, and used the TOR browser, likely for anonymous browsing purposes, with possible documentation in the form of the "shopping list" file.
-
----
-
-## Response Taken
-
-TOR usage was confirmed on the endpoint `threat-hunt-lab` by the user `employee`. The device was isolated, and the user's direct manager was notified.
+Summary this shows that latricemp711 has downloaded silently TOR and went out there way to install it. They went out of there way to open up the TOR browser and used the TOR browser to connect to the TOR network using port 9001. There was clear connection using the initiatingProcessFileName in tor.exe showed up for the records. I expanded the search and saw that thw user did have successful connections as well using port 443 as well. Final query below being able to pull all of the evidence. 
 
 ---
