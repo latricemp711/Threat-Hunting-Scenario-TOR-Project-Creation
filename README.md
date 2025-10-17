@@ -29,11 +29,9 @@ Management suspects that some employees may be using TOR browsers to bypass netw
 Steps Taken 
 Search the DeviceFilesEvent and search for any files that had the string TOR. We discovered that the user latricemp711 downloaded an TOR vinstaller which did something in many TOR related files that resulted any many files being created modified and deleted. A lasting event left a file called tor-shopping-list.txt. This event started on September 4th 11am and has lasted between 1p, . The deleted files seems to be an installer that was successful and was regenerated later. The installer that was created later was successful. The file that was creat **tor-shopping-list.txt** was created at **2025-09-04T20:05:07.6242339Z**
 
-
 **Query used to locate events:**
 
-
-
+```kql
 DeviceFileEvents
 | where DeviceName == "windowsdefender"
 | where FileName contains "tor"
@@ -41,8 +39,10 @@ DeviceFileEvents
 | where Timestamp >= datetime(2025-09-04T18:50:32.5459258Z)
 | order by Timestamp desc
 | project Timestamp, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+```
+<img width="977" height="626" alt="threathunting_finalproject" src="https://github.com/user-attachments/assets/bb585320-3795-41f6-bd8f-92162a288587" />
 
-"<img width="977" height="626" alt="threathunting_finalproject" src="https://github.com/user-attachments/assets/780e1692-dc1e-4d47-af60-df7506bc6cbe" />
+---
 
 
 
